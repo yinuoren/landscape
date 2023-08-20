@@ -1,0 +1,5 @@
+ToDo list:
+1. Resnet base_width problem not solved for tinyimagenet and imagenet models
+2. the print of "creating .... model" should be put into utils.create_and_load_model
+3. utils.create_and_load_model should be put into utils/load.py
+
