@@ -13,23 +13,39 @@ from utils import landscape
 from tqdm import tqdm
 from sklearn.decomposition import PCA
 
-## parameters
-# fixed parameters
-model_class = "mini"
-model_name = "vgg-small"
-dataset = "cifar10"
-data_dir = "data"
-data_subset_classes = [10]
-data_subset_ndata = [500]
-data_subset_random = True
-data_subset_seed = 87654
-save_path = "results/cifar10/small_data/03_sub"
-save_folder = "pca_landscape_reg_3rd"
-load_name = "pca_info_reg_3rd"
-
 # load parameters
 def get_args():
     argparser = argparse.ArgumentParser(description=__doc__)
+    argparser.add_argument(
+        "--save-dir",
+        type=str,
+        default="results",
+        help='Directory to save checkpoints and features (default: "results")',
+    )
+    argparser.add_argument(
+        "--experiment",
+        type=str,
+        default="",
+        help='name used to save results (default: "")',
+    )
+    argparser.add_argument(
+        "--expid", 
+        type=str, 
+        default="", 
+        help='name used to save results (default: "")'
+    )
+    argparser.add_argument(
+        "--load-name",
+        type=str,
+        default="pca_info",
+        help="the name of the file to load PCA information"
+    )
+    argparser.add_argument(
+        "--save-name",
+        type=str,
+        default="pca_landscape",
+        help="the name of the file to save PCA information"
+    )
     argparser.add_argument(
         "--coord-range",
         type=float,
@@ -44,16 +60,32 @@ def get_args():
         default=[],
         help="the number of equispaced points to evaluate in the ranges, [n1,n2]. Including both boundaries"
     )
-    argparser.add_argument(
-        "--exp-id",
-        type=int,
-        default=0,
-        help="the id of the current experiment"
-    )
     
     args = argparser.parse_args()
     return args
+
 args = get_args()
+save_path = args.save_dir + "/" + args.experiment + "/" + str(args.expid)
+json_file_name = save_path + "/hyperparameters.json"
+with open(json_file_name, "r") as f:
+    ARGS = json.load(f)
+
+## parameters
+# fixed parameters
+model_class = ARGS['model_class']
+model_name = ARGS['model']
+dataset = ARGS['dataset']
+data_dir = ARGS['data_dir']
+data_subset_classes = ARGS['data_subset_classes']
+data_subset_ndata = ARGS['data_subset_ndata']
+data_subset_random = ARGS['data_subset_random']
+data_subset_seed = ARGS['data_subset_seed']
+# save_path = "results/cifar10/small_data/03_sub"
+# save_folder = "pca_landscape_reg_3rd"
+load_name = args.load_name
+save_name = args.save_name
+
+
 l1, r1, l2, r2 = args.coord_range
 n1, n2 = args.n
 
@@ -149,8 +181,10 @@ for i in range(n1):
         test_loss[i,j] = teloss
         test_acc[i,j] = teacc
 # save results
-np.savez(save_path+"/"save_folder+"/pca_landscape_"+str(args.exp_id), X1=X1, X2=X2,
-         train_loss=train_loss, train_acc=train_acc, test_loss=test_loss,
-         test_acc=test_acc)
+import os
+# if not os.path.exists(save_path+"/"+save_folder):
+#     os.makedirs(save_path+"/"+save_folder)
+
+np.savez(save_path + "/" + save_name, X1=X1, X2=X2, train_loss=train_loss, train_acc=train_acc, test_loss=test_loss, test_acc=test_acc)
 
 

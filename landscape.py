@@ -23,7 +23,7 @@ def main(ARGS):
         try:
             os.makedirs(save_path)
         except FileExistsError:
-            print_fn("The save path alraedy exists, results are directly saved in.")
+            print_fn("The save path already exists, results are directly saved in.")
 
     ## Save Args ##
     filename = save_path + "/hyperparameters.json"
